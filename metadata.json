@@ -1,0 +1,6 @@
+{
+  "name": "GeniusPrompt",
+  "description": "Una aplicación web para crear, gestionar y compartir prompts de IA, con sugerencias inteligentes impulsadas por Gemini para mejorar su calidad y eficacia.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
