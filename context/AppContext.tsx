@@ -349,6 +349,8 @@ interface AppContextType {
     decrementGenerations: () => void;
 }
 
+import { PromptService } from '../services/promptService';
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const getInitialTheme = (): 'light' | 'dark' => {
@@ -464,13 +466,6 @@ export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
         }, 3000);
     };
 
-import { PromptService } from '../services/promptService';
-
-// ... (keep the rest of the file as is)
-
-export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
-    // ... (keep the state declarations)
-
     const promptService = new PromptService(showNotification);
 
     const addPrompt = (promptData: Omit<Prompt, 'id' | 'createdAt' | 'isFavorite' | 'isPublished'>): string => {
@@ -498,6 +493,16 @@ export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
     const importPrompts = (fileContent: string) => {
         const newPrompts = promptService.importPrompts(prompts, fileContent);
         setPrompts(newPrompts);
+    };
+
+    const incrementDownloads = (promptId: string) => {
+        setCommunityPrompts(prev => prev.map(p => 
+            p.id === promptId ? { ...p, downloads: (p.downloads || 0) + 1 } : p
+        ));
+    };
+
+    const decrementGenerations = () => {
+        setGenerationsRemaining(prev => Math.max(0, prev - 1));
     };
 
     return (
