@@ -330,6 +330,8 @@ const examplePrompts: Prompt[] = idealPrompts.map(p => ({
 
 const initialUserPrompts = idealPrompts.slice(0, 3).map(p => ({...p, isFavorite: Math.random() > 0.7, isPublished: p.id === 'ideal-2' }));
 
+import { PromptService } from '../services/promptService';
+
 interface AppContextType {
     prompts: Prompt[];
     communityPrompts: Prompt[];
@@ -348,8 +350,6 @@ interface AppContextType {
     generationsRemaining: number;
     decrementGenerations: () => void;
 }
-
-import { PromptService } from '../services/promptService';
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
