@@ -464,101 +464,40 @@ export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
         }, 3000);
     };
 
+import { PromptService } from '../services/promptService';
+
+// ... (keep the rest of the file as is)
+
+export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
+    // ... (keep the state declarations)
+
+    const promptService = new PromptService(showNotification);
+
     const addPrompt = (promptData: Omit<Prompt, 'id' | 'createdAt' | 'isFavorite' | 'isPublished'>): string => {
-        const newPrompt: Prompt = {
-            ...promptData,
-            id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
-            isFavorite: false,
-            isPublished: false,
-        };
-        setPrompts(prevPrompts => [newPrompt, ...prevPrompts]);
-        showNotification('¡Prompt guardado con éxito!');
-        return newPrompt.id;
+        const { newPrompts, newPromptId } = promptService.addPrompt(prompts, promptData);
+        setPrompts(newPrompts);
+        return newPromptId;
     };
 
     const deletePrompt = (promptId: string) => {
-        if(window.confirm('¿Estás seguro de que quieres eliminar este prompt? Esta acción no se puede deshacer.')){
-            setPrompts(prev => prev.filter(p => p.id !== promptId));
-            showNotification('Prompt eliminado.', 'error');
-        }
+        const newPrompts = promptService.deletePrompt(prompts, promptId);
+        setPrompts(newPrompts);
     };
 
     const toggleFavorite = (promptId: string) => {
-        setPrompts(prev => prev.map(p => 
-            p.id === promptId ? { ...p, isFavorite: !p.isFavorite } : p
-        ));
+        const newPrompts = promptService.toggleFavorite(prompts, promptId);
+        setPrompts(newPrompts);
     };
 
     const publishPrompt = (promptId: string) => {
-        let promptToPublish: Prompt | undefined;
-
-        setPrompts(prev => prev.map(p => {
-            if (p.id === promptId) {
-                if (p.isPublished) return p; // Already published
-                promptToPublish = { ...p, isPublished: true, author: 'Tú' };
-                return promptToPublish;
-            }
-            return p;
-        }));
-
-        if (promptToPublish && !communityPrompts.some(p => p.id === promptId)) {
-            const communityVersion = {
-                ...promptToPublish,
-                author: 'Tú', // Ensure author is set
-                rating: 0,
-                downloads: 0,
-                createdAt: new Date().toISOString()
-            };
-            setCommunityPrompts(prev => [communityVersion, ...prev]);
-            showNotification('¡Prompt publicado en la comunidad!');
-        }
-    };
-
-    const incrementDownloads = (promptId: string) => {
-        setCommunityPrompts(prev => prev.map(p => 
-            p.id === promptId ? { ...p, downloads: (p.downloads || 0) + 1 } : p
-        ));
-    };
-
-    const decrementGenerations = () => {
-        setGenerationsRemaining(prev => Math.max(0, prev - 1));
+        const { newPrompts, newCommunityPrompts } = promptService.publishPrompt(prompts, communityPrompts, promptId);
+        setPrompts(newPrompts);
+        setCommunityPrompts(newCommunityPrompts);
     };
 
     const importPrompts = (fileContent: string) => {
-        try {
-            const imported = JSON.parse(fileContent);
-            if (!Array.isArray(imported)) {
-                throw new Error("El archivo no es un array de prompts válido.");
-            }
-
-            const validatedPrompts: Prompt[] = imported.filter((p: any) => 
-                p.id && p.title && p.content && p.category
-            ).map((p: any) => ({ // Ensure all fields are present
-                ...p,
-                id: p.id || Date.now().toString(),
-                createdAt: p.createdAt || new Date().toISOString(),
-                isFavorite: p.isFavorite || false,
-                isPublished: p.isPublished || false,
-            }));
-
-            if(validatedPrompts.length === 0) {
-                 showNotification('No se encontraron prompts válidos en el archivo.', 'error');
-                 return;
-            }
-
-            setPrompts(prevPrompts => {
-                const existingIds = new Set(prevPrompts.map(p => p.id));
-                const newPrompts = validatedPrompts.filter(p => !existingIds.has(p.id));
-                return [...prevPrompts, ...newPrompts];
-            });
-
-            showNotification(`¡${validatedPrompts.length} prompts importados con éxito!`);
-
-        } catch (error) {
-            console.error("Error importing prompts:", error);
-            showNotification('Error al importar el archivo. Asegúrate de que es un JSON válido exportado desde esta app.', 'error');
-        }
+        const newPrompts = promptService.importPrompts(prompts, fileContent);
+        setPrompts(newPrompts);
     };
 
     return (
