@@ -34,7 +34,7 @@ class GeminiProvider implements ApiProvider {
       throw new Error('Por favor, proporciona una idea o un archivo de contexto para el prompt.');
     }
 
-    const payload = { idea: prompt, fileContext };
+    const payload = { idea: prompt, fileContent: fileContent };
     return this.callApi('generate', payload);
   }
 
@@ -43,7 +43,7 @@ class GeminiProvider implements ApiProvider {
       throw new Error('No se puede refinar sin el prompt actual y el feedback.');
     }
 
-    const payload = { idea: prompt, fileContext, currentPrompt: generatedPrompt, feedback: refinementFeedback };
+    const payload = { idea: prompt, fileContent: fileContent, currentPrompt: generatedPrompt, feedback: refinementFeedback };
     return this.callApi('refine', payload);
   }
 }
