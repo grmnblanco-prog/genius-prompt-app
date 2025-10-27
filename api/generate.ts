@@ -9,7 +9,7 @@ const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
 if (apiKey) {
     try {
-        ai = new GoogleGenAI(apiKey);
+        ai = new GoogleGenAI({ apiKey });
     } catch (error) {
         console.error("Error initializing GoogleGenAI client:", error);
     }
