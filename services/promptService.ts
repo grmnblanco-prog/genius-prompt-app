@@ -1,7 +1,32 @@
 import { Prompt, Category } from '../types';
+import api from './api';
 
 export class PromptService {
   constructor(private showNotification: (message: string, type?: 'success' | 'error') => void) {}
+
+  async generatePrompt(idea: string, fileContent: string | null): Promise<string> {
+    try {
+      const result = await api.generatePrompt(idea, fileContent);
+      this.showNotification('Prompt generado con éxito.', 'success');
+      return result;
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      this.showNotification(`Error al generar: ${errorMessage}`, 'error');
+      throw error;
+    }
+  }
+
+  async refinePrompt(idea: string, fileContent: string | null, currentPrompt: string, feedback: string): Promise<string> {
+    try {
+      const result = await api.refinePrompt(idea, fileContent, currentPrompt, feedback);
+      this.showNotification('Prompt refinado con éxito.', 'success');
+      return result;
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      this.showNotification(`Error al refinar: ${errorMessage}`, 'error');
+      throw error;
+    }
+  }
 
   addPrompt(prompts: Prompt[], promptData: Omit<Prompt, 'id' | 'createdAt' | 'isFavorite' | 'isPublished'>): { newPrompts: Prompt[], newPromptId: string } {
     const newPrompt: Prompt = {

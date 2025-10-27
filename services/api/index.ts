@@ -2,7 +2,7 @@ import { ApiProvider } from './provider';
 import geminiProvider from './gemini';
 import mockProvider from './mock';
 
-const providers = {
+const providers: { [key: string]: ApiProvider } = {
   gemini: geminiProvider,
   mock: mockProvider,
 };

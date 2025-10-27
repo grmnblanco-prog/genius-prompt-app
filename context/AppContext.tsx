@@ -341,6 +341,8 @@ interface AppContextType {
     toggleFavorite: (promptId: string) => void;
     incrementDownloads: (promptId: string) => void;
     importPrompts: (fileContent: string) => void;
+    generatePrompt: (idea: string, fileContent: string | null) => Promise<string>;
+    refinePrompt: (idea: string, fileContent: string | null, currentPrompt: string, feedback: string) => Promise<string>;
     
     theme: 'light' | 'dark';
     toggleTheme: () => void;
@@ -495,6 +497,14 @@ export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
         setPrompts(newPrompts);
     };
 
+    const generatePrompt = async (idea: string, fileContent: string | null): Promise<string> => {
+        return await promptService.generatePrompt(idea, fileContent);
+    };
+
+    const refinePrompt = async (idea: string, fileContent: string | null, currentPrompt: string, feedback: string): Promise<string> => {
+        return await promptService.refinePrompt(idea, fileContent, currentPrompt, feedback);
+    };
+
     const incrementDownloads = (promptId: string) => {
         setCommunityPrompts(prev => prev.map(p => 
             p.id === promptId ? { ...p, downloads: (p.downloads || 0) + 1 } : p
@@ -508,6 +518,7 @@ export const AppProvider = ({ children }: PropsWithChildren<{}>): ReactNode => {
     return (
         <AppContext.Provider value={{ 
             prompts, communityPrompts, addPrompt, publishPrompt, deletePrompt, toggleFavorite, incrementDownloads, importPrompts,
+            generatePrompt, refinePrompt,
             theme, toggleTheme, notification, showNotification,
             generationsRemaining, decrementGenerations
         }}>
