@@ -361,7 +361,7 @@ const getInitialTheme = (): 'light' | 'dark' => {
       return 'dark';
     }
   }
-  return 'light';
+  return 'dark'; // Default to dark mode
 };
 
 const TOTAL_FREE_GENERATIONS = 10;
